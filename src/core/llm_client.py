@@ -1,7 +1,8 @@
-
 import anthropic
 import openai
+
 from src.core.config import Config
+
 
 class LLMClient:
     def __init__(self, provider="anthropic"):
@@ -11,9 +12,11 @@ class LLMClient:
                 raise ValueError("ANTHROPIC_API_KEY not found in environment variables.")
             self.client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
         elif provider == "openai":
-             if not Config.OPENAI_API_KEY:
+            if not Config.OPENAI_API_KEY:
                 raise ValueError("OPENAI_API_KEY not found in environment variables.")
-             self.client = openai.OpenAI(api_key=Config.OPENAI_API_KEY, base_url=Config.OPENAI_BASE_URL)
+            self.client = openai.OpenAI(
+                api_key=Config.OPENAI_API_KEY, base_url=Config.OPENAI_BASE_URL
+            )
         else:
             raise ValueError(f"Unsupported provider: {provider}")
 
@@ -26,7 +29,7 @@ class LLMClient:
                     max_tokens=max_tokens,
                     temperature=temperature,
                     system=system_prompt,
-                    messages=[{"role": "user", "content": user_content}]
+                    messages=[{"role": "user", "content": user_content}],
                 )
                 return response.content[0].text
             except Exception as e:
@@ -34,16 +37,16 @@ class LLMClient:
                 raise e
         elif self.provider == "openai":
             # For OpenAI-compatible APIs like Kimi or DeepSeek
-            model = model or "deepseek-chat" # Default to DeepSeek
+            model = model or "deepseek-chat"  # Default to DeepSeek
             try:
                 response = self.client.chat.completions.create(
                     model=model,
                     messages=[
                         {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_content}
+                        {"role": "user", "content": user_content},
                     ],
                     max_tokens=max_tokens,
-                    temperature=temperature
+                    temperature=temperature,
                 )
                 return response.choices[0].message.content
             except Exception as e:

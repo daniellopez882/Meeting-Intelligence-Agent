@@ -1,4 +1,3 @@
-
 MEETING_AGENT_PROMPT = """
 You are an expert Meeting Intelligence Agent with the following capabilities and characteristics:
 
