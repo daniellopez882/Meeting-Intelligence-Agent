@@ -1,7 +1,7 @@
-
-import json
+from src.core.json_extraction import extract_json
 from src.core.llm_client import LLMClient
 from src.core.prompts import WORKFLOW_AGENT_PROMPT
+
 
 class WorkflowAgent:
     def __init__(self, client: LLMClient):
@@ -13,25 +13,10 @@ class WorkflowAgent:
         Analyzes a process description (or transcript describing a process) using the Workflow Automation Agent prompt.
         """
         response_text = self.client.generate(
-            system_prompt=self.system_prompt,
-            user_content=process_description,
-            temperature=0.2
+            system_prompt=self.system_prompt, user_content=process_description, temperature=0.2
         )
-        
-        try:
-            return json.loads(response_text)
-        except json.JSONDecodeError:
-            import re
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                try:
-                    return json.loads(json_match.group())
-                except:
-                    pass
-            if "```json" in response_text:
-                cleaned = response_text.split("```json")[1].split("```")[0].strip()
-                return json.loads(cleaned)
-            elif "```" in response_text:
-                 cleaned = response_text.split("```")[1].split("```")[0].strip()
-                 return json.loads(cleaned)
-            return {"error": "Failed to parse JSON", "raw_response": response_text}
+        # Extraction lives in one place now. All three agents carried a copy
+        # with the same defects: a greedy brace regex that swallowed trailing
+        # prose, fenced-block fallbacks that raised out of the error handler,
+        # and an IndexError on an unmatched fence. See core/json_extraction.
+        return extract_json(response_text)
