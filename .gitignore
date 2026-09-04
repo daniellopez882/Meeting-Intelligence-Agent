@@ -1,0 +1,26 @@
+# Secrets. .env was committed with a live DeepSeek API key; blanking the value
+# in a later commit left it readable in history. Never track this file.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Run artefacts. These were committed outputs from local runs.
+api_log.txt
+output.txt
+*_result.json
+*_test.json
+final_output.json
+master_demonstration.json
+sales_analysis.json
+reports/
