@@ -105,6 +105,8 @@ class TestCopy:
             "Real-Time",
             "predictive win-probability",
             "Developed with",
+            "Confidential Enterprise Prototype",
+            "Architect.ai",
         ],
     )
     def test_unsupported_claims_are_gone(self, fragment):
