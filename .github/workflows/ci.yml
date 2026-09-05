@@ -67,8 +67,9 @@ jobs:
           echo "clean"
 
       - name: Bandit
+        # Runs at medium severity and above, and fails the job. It used to be
+        # continue-on-error, which is a check that cannot fail.
         run: bandit -r src -ll -f screen
-        continue-on-error: true
 
   secrets:
     name: Secret scan (full history)
@@ -85,3 +86,45 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
+
+  docker:
+    name: Container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: docker build -t meeting-intelligence:ci .
+
+      - name: The image must not run as root
+        run: |
+          uid=$(docker run --rm --entrypoint id meeting-intelligence:ci -u)
+          [ "$uid" != "0" ] || { echo "::error::container runs as root"; exit 1; }
+          echo "runs as uid $uid"
+
+      - name: Production on the placeholder API key must not start
+        run: |
+          set +e
+          docker run --rm -e ENVIRONMENT=production -e API_KEY=changeme-in-production \
+            -e ANTHROPIC_API_KEY=ci-not-real -e CORS_ALLOW_ORIGINS=https://example.com \
+            meeting-intelligence:ci
+          code=$?
+          set -e
+          [ "$code" != "0" ] || { echo "::error::container started on the placeholder key"; exit 1; }
+          echo "refused with exit $code"
+
+      - name: Serve and answer /health, /ready and /
+        run: |
+          docker run -d --name mi -p 8000:8000 -e ENVIRONMENT=testing -e API_KEY=ci-test-key-not-real meeting-intelligence:ci
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1 && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8000/health
+          echo
+          curl -sS http://127.0.0.1:8000/ready
+          echo
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/)
+          [ "$code" = "200" ] || { echo "::error::dashboard not served (got $code)"; exit 1; }
+          docker logs mi | tail -10
+          docker rm -f mi
