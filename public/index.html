@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligence Architect | The Future of Agentic AI</title>
+    <title>Meeting Intelligence Agent</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -487,18 +487,17 @@
         <div class="nav-links">
             <a href="#features">Solutions</a>
             <a href="#platform">The Lab</a>
-            <a href="#">Enterprise</a>
-            <a href="#platform" class="btn-lite">Live Demo</a>
+            <a href="https://github.com/daniellopez882/Meeting-Intelligence-Agent">Source</a>
+            <a href="#platform" class="btn-lite">Try it</a>
         </div>
     </nav>
 
     <header class="hero-section">
-        <div class="badge-main">Next-Gen Agentic Framework</div>
-        <h1 class="hero-title">Orchestrate <br>Expert Intelligence</h1>
-        <p class="hero-desc">Deploy a specialized swarm of AI agents to distill raw data into production-ready business
-            intelligence. The ultimate brain for your enterprise operations.</p>
+        <div class="badge-main">Multi-agent transcript analysis</div>
+        <h1 class="hero-title">Three agents, <br>one document</h1>
+        <p class="hero-desc">An orchestrator plans which of three specialist agents a request needs, runs them over a transcript, and synthesises one JSON document: summary, decisions, action items, next steps.</p>
         <div class="hero-actions">
-            <a href="#platform" class="btn-primary">Enter the Workspace</a>
+            <a href="#platform" class="btn-primary">Open the workspace</a>
             <a href="#features" class="btn-lite" style="padding: 1.25rem 2.5rem; border-radius: 12px;">View Core
                 agents</a>
         </div>
@@ -507,56 +506,58 @@
     <section class="features-grid" id="features">
         <div class="feat-card" data-aos="fade-up">
             <i class="fas fa-users-viewfinder"></i>
-            <h3>Meeting Master</h3>
-            <p>Convert vague transcripts into executive summaries, filtered decisions, and weight-verified task lists.
-            </p>
+            <h3>Meeting agent</h3>
+            <p>Executive summary, decisions taken, and action items with owners, extracted from the transcript.</p>
         </div>
         <div class="feat-card" data-aos="fade-up" data-aos-delay="100">
             <i class="fas fa-chart-line"></i>
-            <h3>Revenue Engine</h3>
-            <p>Automated sales qualification using MEDDIC scores, deal health analytics, and predictive win-probability.
-            </p>
+            <h3>Sales agent</h3>
+            <p>MEDDIC / BANT qualification and a deal-health score. Both are the model's assessment of the call, labelled as such.</p>
         </div>
         <div class="feat-card" data-aos="fade-up" data-aos-delay="200">
             <i class="fas fa-robot"></i>
-            <h3>Process Architect</h3>
-            <p>Tell us your manual workflow; we'll write the code, the technical spec, and the automation architecture.
-            </p>
+            <h3>Workflow agent</h3>
+            <p>Describes the manual steps it finds and proposes automation. It writes the proposal; it runs nothing.</p>
         </div>
     </section>
 
     <div class="container" id="platform">
         <div style="text-align: center; margin-bottom: 4rem;">
-            <h2 style="font-size: 3rem; font-family: 'Outfit'; margin-bottom: 1rem;">The Intelligence Lab</h2>
-            <p style="color: var(--text-secondary)">Experience multi-agent orchestration in real-time.</p>
+            <h2 style="font-size: 3rem; font-family: 'Outfit'; margin-bottom: 1rem;">Workspace</h2>
+            <p style="color: var(--text-secondary)">Sends your request and transcript to the API you are running.</p>
         </div>
 
         <div class="app-shell">
             <!-- Sidebar / Inputs -->
             <div class="app-sidebar">
                 <form id="intel-form">
+                    <p id="status-line" style="font-size:0.75rem; color: var(--text-secondary); margin-bottom: 1rem;">checking API…</p>
                     <div class="form-group">
-                        <label><i class="fas fa-server"></i> Provider Cluster</label>
+                        <label><i class="fas fa-key"></i> API key</label>
+                        <input type="password" id="api-key" placeholder="X-API-Key (kept in this tab only)" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-server"></i> Provider</label>
                         <select id="provider">
-                            <option value="openai">DeepSeek v3 (L3-Optimized)</option>
-                            <option value="anthropic">Claude 3.5 Sonnet</option>
+                            <option value="openai">openai — OpenAI-compatible endpoint, model from OPENAI_MODEL</option>
+                            <option value="anthropic">anthropic — model from ANTHROPIC_MODEL</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-wand-sparkles"></i> Intent Command</label>
-                        <input type="text" id="request" placeholder="e.g. Perform deep qualification on this sales call"
+                        <label><i class="fas fa-wand-sparkles"></i> Request</label>
+                        <input type="text" id="request" placeholder="e.g. Qualify this sales call"
                             required>
                     </div>
 
                     <div class="form-group">
-                        <label><i class="fas fa-database"></i> Source Context</label>
-                        <textarea id="content" placeholder="Paste raw record or transcript here..."></textarea>
+                        <label><i class="fas fa-database"></i> Transcript</label>
+                        <textarea id="content" placeholder="Paste the transcript here (up to 200,000 characters)"></textarea>
                     </div>
 
                     <button type="submit" class="btn-exec" id="submit-btn">
                         <i class="fas fa-bolt-lightning"></i>
-                        <span>Start Orchestration</span>
+                        <span>Analyse</span>
                     </button>
                 </form>
             </div>
@@ -565,8 +566,8 @@
             <div class="app-content">
                 <div id="empty-workspace" style="text-align: center; margin-top: 10rem; opacity: 0.5;">
                     <i class="fas fa-atom" style="font-size: 4rem; margin-bottom: 2rem;"></i>
-                    <h3>Workspace Idle</h3>
-                    <p>Orchestrator awaiting command signals...</p>
+                    <h3>No analysis yet</h3>
+                    <p>Enter the API key, paste a transcript, and submit.</p>
                 </div>
 
                 <div id="loader">
@@ -576,20 +577,19 @@
                         <div class="dot"></div>
                     </div>
                     <p style="margin-top: 2rem; font-family: 'Outfit'; font-weight: 600; color: var(--primary);">
-                        Synthesizing Multi-Agent Insights...</p>
+                        Running the agents… this takes as long as the model calls take.</p>
                 </div>
 
                 <div id="result-view" style="display: none;">
                     <div class="workspace-header">
                         <div>
                             <span class="pulse-dot"></span>
-                            <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Real-Time
-                                synthesis</span>
-                            <h2 style="font-family: 'Outfit';">Intelligence Report</h2>
+                            <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">Result</span>
+                            <h2 style="font-family: 'Outfit';">Analysis</h2>
                         </div>
                         <div style="display: flex; gap: 0.75rem;">
                             <button class="btn-lite" id="toggle-raw"><i class="fas fa-code"></i></button>
-                            <button class="btn-lite"><i class="fas fa-download"></i></button>
+                            <button class="btn-lite" id="download-raw" title="Download the raw JSON"><i class="fas fa-download"></i></button>
                         </div>
                     </div>
 
@@ -603,7 +603,7 @@
     </div>
 
     <footer>
-        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Powered by Architect Agentic Framework v2.4.0</p>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem;">Meeting Intelligence Agent</p>
         <div style="display: flex; justify-content: center; gap: 2rem; font-size: 1.5rem;">
             <i class="fab fa-github"></i>
             <i class="fab fa-linkedin"></i>
@@ -617,7 +617,6 @@
     <script>
         AOS.init({ duration: 1000, once: true });
 
-        // Visibility on scroll
         window.addEventListener('scroll', () => {
             const platform = document.getElementById('platform');
             if (window.scrollY > 300) platform.classList.add('visible');
@@ -632,8 +631,26 @@
         const mainRender = document.getElementById('main-render');
         const rawRender = document.getElementById('raw-render');
         const toggleRaw = document.getElementById('toggle-raw');
+        const downloadBtn = document.getElementById('download-raw');
+        const apiKeyInput = document.getElementById('api-key');
+        const statusLine = document.getElementById('status-line');
+
+        const KEY_STORAGE = 'nexus.apiKey';
+        try { apiKeyInput.value = sessionStorage.getItem(KEY_STORAGE) || ''; } catch (e) { /* storage unavailable */ }
+        apiKeyInput.addEventListener('input', () => {
+            try { sessionStorage.setItem(KEY_STORAGE, apiKeyInput.value); } catch (e) { /* storage unavailable */ }
+        });
+
+        // Everything the model returns is untrusted text. It is escaped before
+        // it is placed in the page: a transcript can make the model echo HTML.
+        function esc(value) {
+            return String(value ?? '').replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[c]));
+        }
 
         let showRaw = false;
+        let lastPayload = null;
 
         toggleRaw.onclick = () => {
             showRaw = !showRaw;
@@ -641,6 +658,28 @@
             statsRender.style.display = showRaw ? 'none' : 'grid';
             mainRender.style.display = showRaw ? 'none' : 'block';
         };
+
+        downloadBtn.onclick = () => {
+            if (!lastPayload) return;
+            const blob = new Blob([JSON.stringify(lastPayload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'analysis.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        async function readHealth() {
+            try {
+                const r = await fetch('/health');
+                const h = await r.json();
+                statusLine.textContent = 'API ' + h.status + ' · ' + h.environment + ' · v' + h.version;
+            } catch (e) {
+                statusLine.textContent = 'API unreachable';
+            }
+        }
+        readHealth();
 
         form.onsubmit = async (e) => {
             e.preventDefault();
@@ -654,103 +693,136 @@
             loader.style.display = 'flex';
             submitBtn.disabled = true;
 
+            const started = performance.now();
             try {
                 const response = await fetch('/api/process', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKeyInput.value
+                    },
                     body: JSON.stringify({ request, content, provider })
                 });
+                const elapsedSeconds = (performance.now() - started) / 1000;
 
-                const data = await response.json();
-                renderUI(data);
+                let data = null;
+                try { data = await response.json(); } catch (err) { data = { detail: 'non-JSON response' }; }
 
-                rawRender.innerText = JSON.stringify(data, null, 2);
+                if (!response.ok) {
+                    renderError(response.status, data);
+                } else {
+                    lastPayload = data;
+                    renderUI(data, elapsedSeconds);
+                    rawRender.textContent = JSON.stringify(data, null, 2);
+                }
                 loader.style.display = 'none';
                 resultView.style.display = 'block';
-
             } catch (err) {
-                alert('Connection to Orchestrator lost.');
+                renderError(0, { detail: 'The API could not be reached: ' + err.message });
                 loader.style.display = 'none';
-                emptyWork.style.display = 'block';
+                resultView.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
             }
         };
 
-        function renderUI(data) {
+        function renderError(status, data) {
+            statsRender.innerHTML = '';
+            mainRender.innerHTML = '';
+            lastPayload = null;
+            const detail = data && data.detail;
+            let message, requestId = null;
+            if (detail && typeof detail === 'object') {
+                message = detail.message || JSON.stringify(detail);
+                requestId = detail.request_id || null;
+            } else {
+                message = detail ? String(detail) : 'Request failed';
+            }
+            const label = status === 401 ? 'Not authorised — enter the API key in the sidebar.'
+                        : status === 422 ? 'The request was rejected by validation.'
+                        : status === 503 ? 'The API is not configured for this provider.'
+                        : status === 0 ? 'No response.'
+                        : 'The request failed.';
+            addCard('Error' + (status ? ' ' + status : ''), 'fas fa-triangle-exclamation',
+                '<p class="intel-text">' + esc(label) + '</p>' +
+                '<p class="intel-text" style="opacity:0.8">' + esc(message) + '</p>' +
+                (requestId ? '<p style="font-size:0.75rem; opacity:0.6">request id ' + esc(requestId) + '</p>' : ''));
+            rawRender.textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Every number shown comes from the response, or is measured here and
+        // labelled as such. Nothing is defaulted to a plausible value.
+        function renderUI(data, elapsedSeconds) {
             statsRender.innerHTML = '';
             mainRender.innerHTML = '';
 
             const res = data.unified_response || {};
-            const conf = ((data.metadata?.confidence_score || 0.98) * 100).toFixed(0);
-            const agents = (data.metadata?.agents_utilized || ['Meeting Agent']).length;
+            const meta = data.metadata || {};
+            const conf = typeof meta.confidence_score === 'number'
+                ? (meta.confidence_score * 100).toFixed(0) + '%' : '—';
+            const agents = Array.isArray(meta.agents_utilized) ? String(meta.agents_utilized.length) : '—';
 
-            statsRender.innerHTML = `
-                <div class="stat-item">
-                    <span class="stat-val">${conf}%</span>
-                    <span class="stat-lab">Confidence Score</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val">${agents}</span>
-                    <span class="stat-lab">Agents Deployed</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-val">${(data.metadata?.total_processing_time || 4).toFixed(1)}s</span>
-                    <span class="stat-lab">Synthesis Time</span>
-                </div>
-            `;
+            statsRender.innerHTML =
+                stat(conf, 'Model-reported confidence') +
+                stat(agents, 'Agents reported') +
+                stat(elapsedSeconds.toFixed(1) + 's', 'Round trip (measured here)');
 
-            // Cards
+            if (data.error) {
+                addCard('The model reply did not parse', 'fas fa-triangle-exclamation',
+                    '<p class="intel-text">' + esc(data.error) + '</p>');
+            }
             if (res.executive_summary) {
-                addCard('Executive Intel', 'fas fa-newspaper', `<p class="intel-text">${res.executive_summary}</p>`);
+                addCard('Executive summary', 'fas fa-newspaper',
+                    '<p class="intel-text">' + esc(res.executive_summary) + '</p>');
             }
-
             if (res.decisions) {
-                addCard('Decision Matrix', 'fas fa-shield-halved', renderList(res.decisions));
+                addCard('Decisions', 'fas fa-shield-halved', renderList(res.decisions));
             }
-
             if (res.action_items) {
-                addCard('Critical Action Items', 'fas fa-list-check', renderList(res.action_items, 'task', 'owner'));
+                addCard('Action items', 'fas fa-list-check', renderList(res.action_items, 'task', 'owner'));
             }
-
-            // Sales specific
-            if (data.agent_outputs?.sales_agent) {
-                const s = data.agent_outputs.sales_agent;
-                if (s.deal_health) {
-                    addCard('Deal Intelligence', 'fas fa-crosshairs', `
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div style="font-size: 1.5rem; font-weight:800; color:var(--primary)">Score: ${s.deal_health.overall_score}/100</div>
-                            <div class="badge-main" style="margin:0">${s.deal_health.health_category}</div>
-                        </div>
-                    `);
-                }
+            const sales = data.agent_outputs && data.agent_outputs.sales_agent;
+            if (sales && sales.deal_health) {
+                addCard('Deal health (model-assessed)', 'fas fa-crosshairs',
+                    '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+                    '<div style="font-size: 1.5rem; font-weight:800; color:var(--primary)">Score: ' +
+                    esc(sales.deal_health.overall_score) + '/100</div>' +
+                    '<div class="badge-main" style="margin:0">' + esc(sales.deal_health.health_category) + '</div>' +
+                    '</div>');
             }
-
             if (res.next_steps) {
-                addCard('Post-Orchestration Path', 'fas fa-arrow-right-long', renderList(res.next_steps));
+                addCard('Next steps', 'fas fa-arrow-right-long', renderList(res.next_steps));
             }
+            if (!mainRender.children.length) {
+                addCard('Nothing to show', 'fas fa-circle-info',
+                    '<p class="intel-text">The response held no summary, decisions, action items or next steps. Use the raw view.</p>');
+            }
+        }
+
+        function stat(value, label) {
+            return '<div class="stat-item"><span class="stat-val">' + esc(value) +
+                   '</span><span class="stat-lab">' + esc(label) + '</span></div>';
         }
 
         function addCard(title, icon, html) {
             const card = document.createElement('div');
             card.className = 'intel-card';
-            card.innerHTML = `<h4><i class="${icon}"></i> ${title}</h4>${html}`;
+            card.innerHTML = '<h4><i class="' + esc(icon) + '"></i> ' + esc(title) + '</h4>' + html;
             mainRender.appendChild(card);
         }
 
         function renderList(items, primary = null, secondary = null) {
-            if (!Array.isArray(items)) return `<p>${items}</p>`;
-            return `<ul style="list-style:none; display:flex; flex-direction:column; gap:1rem;">
-                ${items.map(i => `
-                    <li style="border-left: 2px solid var(--secondary); padding-left: 1rem;">
-                        <span style="font-weight:600; display:block;">${primary ? i[primary] : i}</span>
-                        ${secondary && i[secondary] ? `<span style="font-size:0.75rem; color:var(--text-secondary);">Owner: ${i[secondary]}</span>` : ''}
-                    </li>
-                `).join('')}
-            </ul>`;
+            if (!Array.isArray(items)) return '<p class="intel-text">' + esc(items) + '</p>';
+            const rows = items.map(i => {
+                const head = primary && i && typeof i === 'object' ? i[primary] : i;
+                const sub = secondary && i && typeof i === 'object' ? i[secondary] : null;
+                return '<li style="border-left: 2px solid var(--secondary); padding-left: 1rem;">' +
+                       '<span style="font-weight:600; display:block;">' + esc(typeof head === 'object' ? JSON.stringify(head) : head) + '</span>' +
+                       (sub ? '<span style="font-size:0.75rem; color:var(--text-secondary);">Owner: ' + esc(sub) + '</span>' : '') +
+                       '</li>';
+            }).join('');
+            return '<ul style="list-style:none; display:flex; flex-direction:column; gap:1rem;">' + rows + '</ul>';
         }
-
     </script>
 </body>
-
 </html>
