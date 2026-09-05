@@ -30,14 +30,14 @@ def main():
     content = ""
     if args.file:
         if not os.path.exists(args.file):
-            print(f"Error: File not found at {args.file}")
+            print(f"Error: File not found at {args.file}", file=sys.stderr)
             sys.exit(1)
         with open(args.file, encoding="utf-8") as f:
             content = f.read()
     elif args.text:
         content = args.text
     else:
-        print("Error: Must provide either --file or --text")
+        print("Error: Must provide either --file or --text", file=sys.stderr)
         sys.exit(1)
 
     try:
@@ -47,7 +47,7 @@ def main():
         # Initialize Orchestrator
         orchestrator = Orchestrator(client)
 
-        print(f"Processing request: {args.request}...")
+        print(f"Processing request: {args.request}...", file=sys.stderr)
         result = orchestrator.process_request(args.request, content)
 
         # Output result
@@ -56,10 +56,10 @@ def main():
         print(json.dumps(result, indent=2))
 
     except ValueError as e:
-        print(f"Configuration Error: {e}")
+        print(f"Configuration Error: {e}", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"An error occurred: {e}", file=sys.stderr)
         sys.exit(1)
 
 

@@ -25,6 +25,7 @@ import logging
 import os
 import secrets
 import uuid
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -47,7 +48,18 @@ MAX_REQUEST_CHARS = 2_000
 MAX_CONTENT_CHARS = 200_000  # roughly a 3-hour transcript
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Production on the placeholder key would leave the model endpoint open.
+    # Raising here makes uvicorn exit non-zero instead of serving.
+    if Config.IS_PRODUCTION:
+        Config.validate_production()
+    logger.info("ready: environment=%s", Config.ENVIRONMENT)
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Meeting Intelligence Agent API",
     description="Multi-agent analysis of meeting transcripts and sales conversations.",
     version="1.0.0",

@@ -1,4 +1,5 @@
 import json
+import logging
 
 from src.agents.meeting_agent import MeetingAgent
 from src.agents.sales_agent import SalesAgent
@@ -6,6 +7,8 @@ from src.agents.workflow_agent import WorkflowAgent
 from src.core.json_extraction import extract_json
 from src.core.llm_client import LLMClient
 from src.core.prompts import ORCHESTRATOR_PROMPT
+
+logger = logging.getLogger("meeting_intelligence.orchestrator")
 
 
 class Orchestrator:
@@ -42,7 +45,10 @@ class Orchestrator:
             plan_data = self._parse_json(plan_response)
             orchestration_plan = plan_data.get("orchestration_plan", plan_data)
         except Exception as e:
-            print(f"Error parsing orchestration plan: {e}")
+            logger.warning(
+                "orchestration plan did not parse (%s); defaulting to the meeting agent",
+                type(e).__name__,
+            )
             # Fallback: Assume Meeting Agent if failed
             orchestration_plan = {
                 "agents_required": ["Meeting Intelligence Agent"],
@@ -50,7 +56,7 @@ class Orchestrator:
             }
 
         agents_required = orchestration_plan.get("agents_required", [])
-        print(f"Orchestration Plan: Agents required: {agents_required}")
+        logger.info("orchestration plan: agents required: %s", agents_required)
 
         agent_outputs = {}
 
@@ -59,17 +65,17 @@ class Orchestrator:
         if "Meeting Intelligence Agent" in agents_required or "Meeting Agent" in str(
             agents_required
         ):
-            print("Running Meeting Agent...")
+            logger.info("running meeting agent")
             agent_outputs["meeting_agent"] = self.meeting_agent.analyze(content_context)
 
         if "Sales Intelligence Agent" in agents_required or "Sales Agent" in str(agents_required):
-            print("Running Sales Agent...")
+            logger.info("running sales agent")
             agent_outputs["sales_agent"] = self.sales_agent.analyze(content_context)
 
         if "Workflow Automation Agent" in agents_required or "Workflow Agent" in str(
             agents_required
         ):
-            print("Running Workflow Agent...")
+            logger.info("running workflow agent")
             agent_outputs["workflow_agent"] = self.workflow_agent.analyze(content_context)
 
         # Step 3: Synthesis
