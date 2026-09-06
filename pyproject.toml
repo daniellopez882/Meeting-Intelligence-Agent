@@ -1,0 +1,24 @@
+[project]
+name = "meeting-intelligence-agent"
+version = "1.0.0"
+description = "Multi-agent analysis of meeting transcripts and sales conversations."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [".venv", "venv", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "C4", "UP", "S", "RUF"]
+ignore = [
+    "E501",
+    "B008",
+    # Prompt text uses the multiplication sign in weighting formulas
+    # deliberately; it is content the model reads, not an identifier.
+    "RUF001",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "E402"]
+"src/main.py" = ["T201"]

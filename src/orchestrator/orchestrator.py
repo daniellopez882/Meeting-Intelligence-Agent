@@ -1,10 +1,15 @@
-
 import json
-from src.core.llm_client import LLMClient
-from src.core.prompts import ORCHESTRATOR_PROMPT
+import logging
+
 from src.agents.meeting_agent import MeetingAgent
 from src.agents.sales_agent import SalesAgent
 from src.agents.workflow_agent import WorkflowAgent
+from src.core.json_extraction import extract_json
+from src.core.llm_client import LLMClient
+from src.core.prompts import ORCHESTRATOR_PROMPT
+
+logger = logging.getLogger("meeting_intelligence.orchestrator")
+
 
 class Orchestrator:
     def __init__(self, client: LLMClient):
@@ -17,12 +22,12 @@ class Orchestrator:
     def process_request(self, user_request: str, content_context: str = ""):
         """
         Orchestrates the processing of a user request.
-        
+
         Args:
             user_request: The specific instruction from the user (e.g., "Analyze this sales call...")
             content_context: The content to process (e.g., the transcript text).
         """
-        
+
         # Step 1: Planning
         # We ask the Orchestrator to decide which agents to use.
         # We wrap the user request to specifically ask for a plan.
@@ -31,40 +36,47 @@ class Orchestrator:
             f"CONTENT CONTEXT (Preview): {content_context[:500]}...\n\n"
             "Based on the above, please output ONLY the 'orchestration_plan' JSON object indicating which agents are required and the execution pattern."
         )
-        
+
         plan_response = self.client.generate(
-            system_prompt=self.system_prompt,
-            user_content=planning_instruction,
-            temperature=0.2
+            system_prompt=self.system_prompt, user_content=planning_instruction, temperature=0.2
         )
-        
+
         try:
             plan_data = self._parse_json(plan_response)
             orchestration_plan = plan_data.get("orchestration_plan", plan_data)
         except Exception as e:
-            print(f"Error parsing orchestration plan: {e}")
+            logger.warning(
+                "orchestration plan did not parse (%s); defaulting to the meeting agent",
+                type(e).__name__,
+            )
             # Fallback: Assume Meeting Agent if failed
-            orchestration_plan = {"agents_required": ["Meeting Intelligence Agent"], "execution_pattern": "sequential"}
+            orchestration_plan = {
+                "agents_required": ["Meeting Intelligence Agent"],
+                "execution_pattern": "sequential",
+            }
 
         agents_required = orchestration_plan.get("agents_required", [])
-        print(f"Orchestration Plan: Agents required: {agents_required}")
+        logger.info("orchestration plan: agents required: %s", agents_required)
 
         agent_outputs = {}
 
         # Step 2: Execution
         # This is a simplified execution model (sequential/parallel handled simply here)
-        if "Meeting Intelligence Agent" in agents_required or "Meeting Agent" in str(agents_required):
-            print("Running Meeting Agent...")
+        if "Meeting Intelligence Agent" in agents_required or "Meeting Agent" in str(
+            agents_required
+        ):
+            logger.info("running meeting agent")
             agent_outputs["meeting_agent"] = self.meeting_agent.analyze(content_context)
-            
-        if "Sales Intelligence Agent" in agents_required or "Sales Agent" in str(agents_required):
-            print("Running Sales Agent...")
-            agent_outputs["sales_agent"] = self.sales_agent.analyze(content_context)
-            
-        if "Workflow Automation Agent" in agents_required or "Workflow Agent" in str(agents_required):
-            print("Running Workflow Agent...")
-            agent_outputs["workflow_agent"] = self.workflow_agent.analyze(content_context)
 
+        if "Sales Intelligence Agent" in agents_required or "Sales Agent" in str(agents_required):
+            logger.info("running sales agent")
+            agent_outputs["sales_agent"] = self.sales_agent.analyze(content_context)
+
+        if "Workflow Automation Agent" in agents_required or "Workflow Agent" in str(
+            agents_required
+        ):
+            logger.info("running workflow agent")
+            agent_outputs["workflow_agent"] = self.workflow_agent.analyze(content_context)
 
         # Step 3: Synthesis
         # Now we provide the agent outputs back to the Orchestrator for the final JSON.
@@ -79,21 +91,20 @@ class Orchestrator:
         )
 
         final_response = self.client.generate(
-            system_prompt=self.system_prompt,
-            user_content=synthesis_instruction,
-            temperature=0.2
+            system_prompt=self.system_prompt, user_content=synthesis_instruction, temperature=0.2
         )
-        
+
         return self._parse_json(final_response)
 
     def _parse_json(self, text):
-        try:
-            return json.loads(text)
-        except json.JSONDecodeError:
-            if "```json" in text:
-                cleaned = text.split("```json")[1].split("```")[0]
-                return json.loads(cleaned)
-            elif "```" in text:
-                 cleaned = text.split("```")[1].split("```")[0]
-                 return json.loads(cleaned)
-            return {"error": "Failed to parse JSON", "raw": text}
+        """
+        Extract the plan/synthesis object from a model response.
+
+        A fourth copy of the hand-rolled parser lived here, with the same
+        defects as the three in agents/: the fenced-block fallbacks called
+        json.loads outside any try, so a malformed fence raised past the
+        error return, and split("```")[1] raised IndexError on an unmatched
+        fence. Both are the orchestrator's own failure path, so a bad model
+        response took down the whole request rather than degrading.
+        """
+        return extract_json(text)
