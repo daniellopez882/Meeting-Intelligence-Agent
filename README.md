@@ -23,7 +23,7 @@ and as a CLI.
 | **Does** | Plan → run the needed agents → synthesise: executive summary, decisions, action items, next steps; MEDDIC/BANT-style qualification with a model-assessed deal-health score; a written description of automation opportunities |
 | **Does not** | Execute anything the workflow agent proposes; integrate with any CRM; persist anything |
 | **Providers** | `anthropic` (model from `ANTHROPIC_MODEL`) and `openai` — any OpenAI-compatible base URL, DeepSeek by default (model from `OPENAI_MODEL`) |
-| **Tests** | 100 — none reach a network or need a credential |
+| **Tests** | 102 — none reach a network or need a credential |
 | **CI** | lint · tests · no `.env` and no key-shaped string may be tracked · bandit (fails the job) · gitleaks over full history · container built, run as non-root, refused on an unsafe production config |
 | **Same code as** | [`Autonomous-Multi-Agent-Orchestration-for-Business-Synthesis`](https://github.com/daniellopez882/Autonomous-Multi-Agent-Orchestration-for-Business-Synthesis) — `src/` was byte-identical; the two repositories receive the same fixes |
 
@@ -171,7 +171,7 @@ src/
     json_extraction.py   the one parser
     prompts.py
 public/index.html        the dashboard, served at /
-tests/                   100 tests
+tests/                   102 tests
 docs/                    ADRs, threat model
 ```
 
