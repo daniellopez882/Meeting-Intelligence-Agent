@@ -56,7 +56,7 @@ sequenceDiagram
     participant L as Provider (Anthropic or OpenAI-compatible)
 
     D->>A: POST /api/process {request, content, provider} + X-API-Key
-    A->>A: constant-time key check; request ≤ 2k chars, content ≤ 200k
+    A->>A: constant-time key check, request ≤ 2k chars, content ≤ 200k
     A->>O: process_request(request, content)
     O->>L: plan (system prompt + request + preview)
     L-->>O: {"orchestration_plan": {"agents_required": [...]}}
